@@ -6,6 +6,7 @@ import mr.iscae.entities.Pharmacy;
 import mr.iscae.services.PharmacyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -21,6 +22,7 @@ public class PharmacyController {
     private final PharmacyService pharmacyService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<PharmacyDto>> getAllPharmacies() {
         List<PharmacyDto> pharmacies = pharmacyService.getAllPharmacies().stream()
                 .map(this::toDto)
@@ -42,12 +44,14 @@ public class PharmacyController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PharmacyDto> createPharmacy(@Valid @RequestBody PharmacyDto pharmacyDto) {
         Pharmacy pharmacy = pharmacyService.addPharmacy(pharmacyDto);
         return new ResponseEntity<>(toDto(pharmacy), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PharmacyDto> updatePharmacy(
             @PathVariable Long id,
             @Valid @RequestBody PharmacyDto pharmacyDto) {
@@ -56,6 +60,7 @@ public class PharmacyController {
     }
 
     @PatchMapping("/{id}/open-status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updateOpenStatus(
             @PathVariable Long id,
             @RequestParam boolean isOpenTonight) {
@@ -67,6 +72,7 @@ public class PharmacyController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePharmacy(@PathVariable Long id) {
         pharmacyService.deletePharmacy(id);
         return ResponseEntity.noContent().build();

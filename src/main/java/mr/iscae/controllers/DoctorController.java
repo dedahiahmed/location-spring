@@ -6,6 +6,7 @@ import mr.iscae.entities.Doctor;
 import mr.iscae.services.DoctorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -42,12 +43,14 @@ public class DoctorController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DoctorDto> createDoctor(@Valid @RequestBody DoctorDto doctorDto) {
         Doctor doctor = doctorService.addDoctor(doctorDto);
         return new ResponseEntity<>(toDto(doctor), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DoctorDto> updateDoctor(
             @PathVariable Long id,
             @Valid @RequestBody DoctorDto doctorDto) {
@@ -56,6 +59,7 @@ public class DoctorController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteDoctor(@PathVariable Long id) {
         doctorService.deleteDoctor(id);
         return ResponseEntity.noContent().build();
