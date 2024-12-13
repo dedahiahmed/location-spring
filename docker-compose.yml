@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    image: location:latest
+    container_name: health-location-backend
+    restart: always
+    ports:
+      - "8947:8947"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/h_loc
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin@iscae
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - postgres
+    networks:
+      - kong-api-gateway_kong-net
+
+  postgres:
+    image: postgres:16.0
+    container_name: postgres-db
+    restart: always
+    ports:
+      - "5445:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    environment:
+      POSTGRES_DB: h_loc
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin@iscae
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - kong-api-gateway_kong-net
+
+  pgadmin:
+    image: dpage/pgadmin4:7.7
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    user: root
+    networks:
+      - kong-api-gateway_kong-net
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  kong-api-gateway_kong-net:
+    external: true
