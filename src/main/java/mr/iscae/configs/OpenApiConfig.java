@@ -2,13 +2,11 @@ package mr.iscae.configs;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.servers.Server;
-import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.Operation;
-import org.springdoc.core.customizers.OperationCustomizer;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.method.HandlerMethod;
 
 @Configuration
 public class OpenApiConfig {
@@ -25,22 +23,13 @@ public class OpenApiConfig {
             server = new Server().url("http://localhost:8080");
         }
 
+        SecurityScheme securityScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.APIKEY)
+                .in(SecurityScheme.In.HEADER)
+                .name("Authorization");
+
         return new OpenAPI()
+                .components(new Components().addSecuritySchemes("api_key", securityScheme))
                 .addServersItem(server);
-    }
-
-    @Bean
-    public OperationCustomizer customGlobalHeaders() {
-        return (Operation operation, HandlerMethod handlerMethod) -> {
-            Parameter authHeader = new Parameter()
-                    .in("header")
-                    .name("Authorization")
-                    .description("Authorization header")
-                    .required(false)
-                    .schema(new io.swagger.v3.oas.models.media.StringSchema());
-
-            operation.addParametersItem(authHeader);
-            return operation;
-        };
     }
 }
