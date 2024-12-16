@@ -9,10 +9,6 @@ services:
     ports:
       - "8947:8947"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/h_loc
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: admin@iscae
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       PROD: 'true'
     depends_on:
       - postgres
