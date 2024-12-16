@@ -33,7 +33,16 @@ public class SecurityConfiguration {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**")
+                        req.requestMatchers(
+                                        "/api/auth/**",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**",
+                                        "/api/pharmacies/available",
+                                        "/api/cabinets",
+                                        "/api/doctors",
+                                        "/api/doctors/{id}",
+                                        "/api/doctors/cabinet/{cabinetId}"
+                                )
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
@@ -45,10 +54,8 @@ public class SecurityConfiguration {
                         logout.logoutUrl("/api/v1/auth/logout")
                                 .addLogoutHandler(logoutHandler)
                                 .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
-                )
-        ;
+                );
 
         return http.build();
     }
-
 }
