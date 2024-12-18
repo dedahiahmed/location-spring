@@ -20,9 +20,11 @@ import java.io.IOException;
 public class AuthenticationController {
 
     private final AuthenticationService service;
+    private final AuthenticationService authenticationService;
 
-    public AuthenticationController(AuthenticationService service) {
+    public AuthenticationController(AuthenticationService service, AuthenticationService authenticationService) {
         this.service = service;
+        this.authenticationService = authenticationService;
     }
 
     @PostMapping("/register")
@@ -47,8 +49,8 @@ public class AuthenticationController {
         service.refreshToken(request, response);
     }
     @GetMapping("/check-admin")
-    public ResponseEntity<Boolean> isCurrentUserAdmin() {
-        return ResponseEntity.ok(service.isCurrentUserAdmin());
+    public ResponseEntity<Boolean> isCurrentUserAdmin(HttpServletRequest request) {
+        return ResponseEntity.ok(authenticationService.isCurrentUserAdmin(request));
     }
 
 }

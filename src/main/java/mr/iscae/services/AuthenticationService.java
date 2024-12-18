@@ -4,15 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import mr.iscae.constants.Role;
 import mr.iscae.dtos.AuthenticationRequest;
 import mr.iscae.dtos.AuthenticationResponse;
 import mr.iscae.dtos.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import mr.iscae.entities.User;
@@ -102,15 +106,42 @@ public class AuthenticationService {
             }
         }
     }
-    public Boolean isCurrentUserAdmin() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public Boolean isCurrentUserAdmin(HttpServletRequest request) {
+        try {
+            final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (authentication != null && authentication.isAuthenticated()) {
-            return authentication.getAuthorities().stream()
-                    .anyMatch(authority -> authority.getAuthority().equals("ADMIN"));
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                throw new AuthenticationCredentialsNotFoundException("No authentication token provided");
+            }
+
+            final String jwt = authHeader.substring(7);
+            final String username = jwtService.extractUsername(jwt);
+
+            if (username == null) {
+                throw new AuthenticationCredentialsNotFoundException("Invalid token");
+            }
+
+            User user = repository.findUserByUsername(username)
+                    .orElseThrow(() -> {
+                        return new UsernameNotFoundException("User not found");
+                    });
+
+            boolean isTokenValid = jwtService.isTokenValid(jwt, user);
+
+            if (!isTokenValid) {
+                throw new AuthenticationCredentialsNotFoundException("Invalid token");
+            }
+
+            return user.getRole() == Role.ADMIN;
+
+        } catch (AuthenticationException e) {
+            System.out.println("Authentication exception: " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            System.out.println("Exception during admin status validation: " + e.getMessage());
+            throw new AuthenticationCredentialsNotFoundException("Error validating admin status", e);
         }
-
-        return false;
     }
+
 }
 
