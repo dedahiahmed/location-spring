@@ -18,6 +18,7 @@ import java.util.List;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
     /**
      * Handles exceptions related to validation failures.
      *
@@ -33,7 +34,7 @@ public class GlobalExceptionHandler {
             validations.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
-        return new ResponseEntity<>(validations, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new HashMap<String, Object>() {{ put("message", validations); }}, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -43,16 +44,18 @@ public class GlobalExceptionHandler {
      * @return a response entity with an appropriate error message and status code
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+    public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        String errorMessage;
         try {
-            String errorMessage = ex.getCause().getMessage();
-            String[] parts = errorMessage.split("`");
+            String[] parts = ex.getCause().getMessage().split("`");
             String enumType = parts[1].substring(parts[1].lastIndexOf('.') + 1);
-            errorMessage = "invalid value provided for :" + enumType;
-            return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+            errorMessage = "invalid value provided for: " + enumType;
         } catch (Exception e) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+            errorMessage = ex.getMessage();
         }
+
+        String finalErrorMessage = errorMessage;
+        return new ResponseEntity<>(new HashMap<String, String>() {{ put("message", finalErrorMessage); }}, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -62,8 +65,8 @@ public class GlobalExceptionHandler {
      * @return a response entity with an appropriate error message and status code
      */
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> handleIdNotFoundException(EntityNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> handleIdNotFoundException(EntityNotFoundException ex) {
+        return new ResponseEntity<>(new HashMap<String, String>() {{ put("message", ex.getMessage()); }}, HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -74,36 +77,31 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
-        HashMap<String, Object> error = new HashMap<>();
-        error.put("Error", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new HashMap<String, String>() {{ put("message", ex.getMessage()); }}, HttpStatus.BAD_REQUEST);
     }
 
     /**
      * Handles exceptions related to Authentication (token).
      *
-     * @return a response entity with a appropriate error message and status code
+     * @return a response entity with an appropriate error message and status code
      */
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<String> handleAuthenticationException() {
-        // Handle the specific exception here
-        return new ResponseEntity<>("You don't have the required permissions to access this resource.", HttpStatus.FORBIDDEN);
+    public ResponseEntity<?> handleAuthenticationException() {
+        return new ResponseEntity<>(new HashMap<String, String>() {{ put("message", "You don't have the required permissions to access this resource."); }}, HttpStatus.FORBIDDEN);
     }
 
     /**
      * Handles exceptions related to Authorization.
      *
-     * @return a response entity with a appropriate error message and status code
+     * @return a response entity with an appropriate error message and status code
      */
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<String> handleAccessDeniedException() {
-        // Handle the specific exception here
-        return new ResponseEntity<>("You don't have the required permissions to access this resource.", HttpStatus.FORBIDDEN);
+    public ResponseEntity<?> handleAccessDeniedException() {
+        return new ResponseEntity<>(new HashMap<String, String>() {{ put("message", "You don't have the required permissions to access this resource."); }}, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
-    public ResponseEntity<String> handleAuthenticationCredentialsNotFoundException() {
-        return new ResponseEntity<>("You must provide an authorization token.", HttpStatus.FORBIDDEN);
+    public ResponseEntity<?> handleAuthenticationCredentialsNotFoundException() {
+        return new ResponseEntity<>(new HashMap<String, String>() {{ put("message", "You must provide an authorization token."); }}, HttpStatus.FORBIDDEN);
     }
-
 }
