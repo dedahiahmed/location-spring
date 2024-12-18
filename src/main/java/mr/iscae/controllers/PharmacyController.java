@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import mr.iscae.dtos.PharmacyDto;
 import mr.iscae.entities.Pharmacy;
 import mr.iscae.services.PharmacyService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,10 +25,9 @@ public class PharmacyController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<PharmacyDto>> getAllPharmacies() {
-        List<PharmacyDto> pharmacies = pharmacyService.getAllPharmacies().stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+    public ResponseEntity<Page<PharmacyDto>> getAllPharmacies(Pageable pageable) {
+        Page<PharmacyDto> pharmacies = pharmacyService.getAllPharmacies(pageable)
+                .map(this::toDto);
         return ResponseEntity.ok(pharmacies);
     }
 

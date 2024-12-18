@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import mr.iscae.dtos.PharmacyDto;
 import mr.iscae.entities.Pharmacy;
 import mr.iscae.repositories.PharmacyRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,8 +23,8 @@ public class PharmacyService {
 
     private final PharmacyRepository pharmacyRepository;
 
-    public List<Pharmacy> getAllPharmacies() {
-        return pharmacyRepository.findAll();
+    public Page<Pharmacy> getAllPharmacies(Pageable pageable) {
+        return pharmacyRepository.findAll(pageable);
     }
 
     public List<Pharmacy> getAvailablePharmacies() {
