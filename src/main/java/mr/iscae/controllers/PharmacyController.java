@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/pharmacies")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class PharmacyController {
 
     private final PharmacyService pharmacyService;
