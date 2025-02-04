@@ -2,8 +2,11 @@ package mr.iscae.controllers;
 
 import lombok.RequiredArgsConstructor;
 import mr.iscae.dtos.CabinetDto;
+import mr.iscae.dtos.PharmacyDto;
 import mr.iscae.entities.Cabinet;
 import mr.iscae.services.CabinetService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,10 +25,9 @@ public class CabinetController {
     private final CabinetService cabinetService;
 
     @GetMapping
-    public ResponseEntity<List<CabinetDto>> getAllCabinets() {
-        List<CabinetDto> cabinets = cabinetService.getAllCabinets().stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+    public ResponseEntity<Page<CabinetDto>> getAllCabinets(Pageable pageable) {
+        Page<CabinetDto> cabinets = cabinetService.getAllCabinets(pageable)
+                .map(this::toDto);
         return ResponseEntity.ok(cabinets);
     }
 
