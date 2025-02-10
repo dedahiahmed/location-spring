@@ -6,6 +6,8 @@ import mr.iscae.entities.Cabinet;
 import mr.iscae.entities.Doctor;
 import mr.iscae.repositories.CabinetRepository;
 import mr.iscae.repositories.DoctorRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,8 +22,8 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final CabinetRepository cabinetRepository;
 
-    public List<Doctor> getAllDoctors() {
-        return doctorRepository.findAll();
+    public Page<Doctor> getAllDoctors(Pageable pageable) {
+        return doctorRepository.findAll(pageable);
     }
 
     public Doctor getDoctorById(Long id) {

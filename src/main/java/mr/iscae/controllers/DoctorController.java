@@ -1,9 +1,13 @@
 package mr.iscae.controllers;
 
 import lombok.RequiredArgsConstructor;
+import mr.iscae.dtos.CabinetDto;
 import mr.iscae.dtos.DoctorDto;
+import mr.iscae.dtos.PharmacyDto;
 import mr.iscae.entities.Doctor;
 import mr.iscae.services.DoctorService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,10 +26,9 @@ public class DoctorController {
     private final DoctorService doctorService;
 
     @GetMapping
-    public ResponseEntity<List<DoctorDto>> getAllDoctors() {
-        List<DoctorDto> doctors = doctorService.getAllDoctors().stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+    public ResponseEntity<Page<DoctorDto>> getAllDoctors(Pageable pageable) {
+        Page<DoctorDto> doctors = doctorService.getAllDoctors(pageable)
+                .map(this::toDto);
         return ResponseEntity.ok(doctors);
     }
 
