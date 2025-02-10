@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -63,13 +64,40 @@ public class PharmacyController {
 
     @PatchMapping("/open-status/bulk")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> updateOpenStatusBulk(
-            @RequestBody BulkOpenStatusRequest request) {
-        boolean updated = pharmacyService.updateOpenStatusBulk(request.getPharmacyIds(), request.isOpenTonight());
-        if (updated) {
-            return ResponseEntity.ok("Open status updated successfully for " + request.getPharmacyIds().size() + " pharmacies");
+    public ResponseEntity<Map<String, Object>> updateOpenStatusBulk(@RequestBody BulkOpenStatusRequest request) {
+        try {
+            if (request.getPharmacyIds() == null || request.getPharmacyIds().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of(
+                                "success", false,
+                                "message", "No pharmacies selected"
+                        ));
+            }
+
+            boolean updated = pharmacyService.updateOpenStatusBulk(
+                    request.getPharmacyIds(),
+                    request.isOpenTonight()
+            );
+
+            if (updated) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Updated " + request.getPharmacyIds().size() + " pharmacies successfully"
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                                "success", false,
+                                "message", "Some pharmacies could not be found"
+                        ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Error updating pharmacies: " + e.getMessage()
+                    ));
         }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
