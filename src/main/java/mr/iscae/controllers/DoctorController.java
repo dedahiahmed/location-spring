@@ -75,6 +75,7 @@ public class DoctorController {
                 .speciality(doctor.getSpeciality())
                 .schedule(doctor.getSchedule())
                 .cabinetId(doctor.getCabinet().getId())
+                .cabinetName(doctor.getCabinet().getNom())
                 .build();
     }
 

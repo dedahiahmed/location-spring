@@ -27,4 +27,6 @@ public class DoctorDto {
 
     @NotNull(message = "Cabinet cannot be null")
     private Long cabinetId;
+    
+    private String cabinetName;
 }
