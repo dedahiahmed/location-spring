@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,9 +27,8 @@ public interface PharmacyRepository extends JpaRepository<Pharmacy, Long> {
     // Update the 'isOpenTonight' property for a Pharmacy by ID
     @Transactional
     @Modifying
-    @Query("UPDATE Pharmacy p SET p.isOpenTonight = :isOpenTonight WHERE p.id = :id")
-    int updateIsOpenTonight(Long id, boolean isOpenTonight);
-
+    @Query("UPDATE Pharmacy p SET p.isOpenTonight = :isOpenTonight WHERE p.id IN :ids")
+    int updateIsOpenTonightBulk(List<Long> ids, boolean isOpenTonight);
     // Find a Pharmacy by ID
     Optional<Pharmacy> findById(Long id);
 

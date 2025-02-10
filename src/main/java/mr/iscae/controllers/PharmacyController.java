@@ -1,6 +1,7 @@
 package mr.iscae.controllers;
 
 import lombok.RequiredArgsConstructor;
+import mr.iscae.dtos.BulkOpenStatusRequest;
 import mr.iscae.dtos.PharmacyDto;
 import mr.iscae.entities.Pharmacy;
 import mr.iscae.services.PharmacyService;
@@ -60,14 +61,13 @@ public class PharmacyController {
         return ResponseEntity.ok(toDto(pharmacy));
     }
 
-    @PatchMapping("/{id}/open-status")
+    @PatchMapping("/open-status/bulk")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> updateOpenStatus(
-            @PathVariable Long id,
-            @RequestParam boolean isOpenTonight) {
-        boolean updated = pharmacyService.updateOpenStatus(id, isOpenTonight);
+    public ResponseEntity<String> updateOpenStatusBulk(
+            @RequestBody BulkOpenStatusRequest request) {
+        boolean updated = pharmacyService.updateOpenStatusBulk(request.getPharmacyIds(), request.isOpenTonight());
         if (updated) {
-            return ResponseEntity.ok("Open status updated successfully");
+            return ResponseEntity.ok("Open status updated successfully for " + request.getPharmacyIds().size() + " pharmacies");
         }
         return ResponseEntity.notFound().build();
     }

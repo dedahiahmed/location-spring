@@ -45,8 +45,8 @@ public class PharmacyService {
     }
 
     @Transactional
-    public boolean updateOpenStatus(Long pharmacyId, boolean isOpenTonight) {
-        int updatedRows = pharmacyRepository.updateIsOpenTonight(pharmacyId, isOpenTonight);
+    public boolean updateOpenStatusBulk(List<Long> pharmacyIds, boolean isOpenTonight) {
+        int updatedRows = pharmacyRepository.updateIsOpenTonightBulk(pharmacyIds, isOpenTonight);
         return updatedRows > 0;
     }
 
