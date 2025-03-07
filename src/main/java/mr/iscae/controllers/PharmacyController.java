@@ -6,7 +6,9 @@ import mr.iscae.dtos.PharmacyDto;
 import mr.iscae.entities.Pharmacy;
 import mr.iscae.services.PharmacyService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,11 +36,22 @@ public class PharmacyController {
     }
 
     @GetMapping("/available")
-    public ResponseEntity<List<PharmacyDto>> getAvailablePharmacies() {
-        List<PharmacyDto> pharmacies = pharmacyService.getAvailablePharmacies().stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(pharmacies);
+    public ResponseEntity<Page<PharmacyDto>> getAvailablePharmacies(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String willaya,
+            @RequestParam(required = false) String moughataa,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+
+        Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        Page<Pharmacy> pharmacies = pharmacyService.getAvailablePharmacies(name, willaya, moughataa, pageable);
+        Page<PharmacyDto> pharmacyDtos = pharmacies.map(this::toDto);
+
+        return ResponseEntity.ok(pharmacyDtos);
     }
 
     @GetMapping("/{id}")

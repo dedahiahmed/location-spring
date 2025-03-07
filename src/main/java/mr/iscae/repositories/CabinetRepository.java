@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface CabinetRepository extends JpaRepository<Cabinet, Long> {
 
-    // Find all cabinets
+
     @Override
     List<Cabinet> findAll();
 

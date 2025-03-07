@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import mr.iscae.dtos.PharmacyDto;
 import mr.iscae.entities.Pharmacy;
 import mr.iscae.repositories.PharmacyRepository;
+import mr.iscae.specifications.PharmacySpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,7 +16,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class PharmacyService {
         return pharmacyRepository.findAll(pageable);
     }
 
-    public List<Pharmacy> getAvailablePharmacies() {
+    public Page<Pharmacy> getAvailablePharmacies(String name, String willaya, String moughataa, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
         LocalTime currentTime = now.toLocalTime();
         DayOfWeek currentDay = now.getDayOfWeek();
@@ -36,12 +37,18 @@ public class PharmacyService {
                 || currentTime.isBefore(LocalTime.of(8, 0));
         boolean isSunday = currentDay == DayOfWeek.SUNDAY;
 
-        return pharmacyRepository.findAll().stream()
-                .filter(pharmacy -> {
-                    boolean isOpenTonight = pharmacy.isOpenTonight();
-                    return !(isNightTime || isSunday) || isOpenTonight;
-                })
-                .collect(Collectors.toList());
+        // If it's night time or Sunday, we only want pharmacies that are open tonight
+        Boolean openTonightFilter = null;
+        if (isNightTime || isSunday) {
+            openTonightFilter = true;
+        }
+
+        Specification<Pharmacy> spec = Specification.where(PharmacySpecification.withName(name))
+                .and(PharmacySpecification.withWillaya(willaya))
+                .and(PharmacySpecification.withMoughataa(moughataa))
+                .and(PharmacySpecification.isOpenTonight(openTonightFilter));
+
+        return pharmacyRepository.findAll(spec, pageable);
     }
 
     @Transactional

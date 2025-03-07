@@ -32,7 +32,6 @@ public class CabinetController {
     }
 
     @GetMapping("/{id}")
-
     public ResponseEntity<CabinetDto> getCabinetById(@PathVariable Long id) {
         return ResponseEntity.ok(toDto(cabinetService.getCabinetById(id)));
     }
