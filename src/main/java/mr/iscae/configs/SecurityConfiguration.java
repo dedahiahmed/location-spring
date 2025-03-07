@@ -42,7 +42,8 @@ public class SecurityConfiguration {
                                         "/api/cabinets",
                                         "/api/doctors",
                                         "/api/doctors/{id}",
-                                        "/api/doctors/cabinet/{cabinetId}"
+                                        "/api/doctors/cabinet/{cabinetId}",
+                                        "/api/health"
                                 )
                                 .permitAll()
                                 .anyRequest()
