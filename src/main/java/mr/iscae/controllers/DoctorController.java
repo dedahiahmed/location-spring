@@ -76,6 +76,8 @@ public class DoctorController {
                 .schedule(doctor.getSchedule())
                 .cabinetId(doctor.getCabinet().getId())
                 .cabinetName(doctor.getCabinet().getNom())
+                .cabinetLongitude(doctor.getCabinet().getLongitude())
+                .cabinetAltitude(doctor.getCabinet().getLatitude())
                 .build();
     }
 

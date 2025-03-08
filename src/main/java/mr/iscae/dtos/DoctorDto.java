@@ -29,4 +29,6 @@ public class DoctorDto {
     private Long cabinetId;
     
     private String cabinetName;
+    private Double cabinetLongitude;
+    private Double cabinetAltitude;
 }

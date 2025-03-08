@@ -30,7 +30,7 @@ public class CabinetController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String willaya,
             @RequestParam(required = false) String moughataa,
-            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+            @PageableDefault(sort = "id") Pageable pageable) {
 
         return ResponseEntity.ok(cabinetService.getAllCabinets(name, willaya, moughataa, pageable));
     }
