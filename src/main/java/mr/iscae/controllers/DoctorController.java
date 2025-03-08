@@ -26,8 +26,11 @@ public class DoctorController {
     private final DoctorService doctorService;
 
     @GetMapping
-    public ResponseEntity<Page<DoctorDto>> getAllDoctors(Pageable pageable) {
-        Page<DoctorDto> doctors = doctorService.getAllDoctors(pageable)
+    public ResponseEntity<Page<DoctorDto>> getAllDoctors(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String speciality,
+            Pageable pageable) {
+        Page<DoctorDto> doctors = doctorService.getAllDoctors(name, speciality, pageable)
                 .map(this::toDto);
         return ResponseEntity.ok(doctors);
     }

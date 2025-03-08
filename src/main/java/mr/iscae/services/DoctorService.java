@@ -6,8 +6,10 @@ import mr.iscae.entities.Cabinet;
 import mr.iscae.entities.Doctor;
 import mr.iscae.repositories.CabinetRepository;
 import mr.iscae.repositories.DoctorRepository;
+import mr.iscae.specifications.DoctorSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,10 +24,12 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final CabinetRepository cabinetRepository;
 
-    public Page<Doctor> getAllDoctors(Pageable pageable) {
-        return doctorRepository.findAll(pageable);
-    }
+    public Page<Doctor> getAllDoctors(String name, String speciality, Pageable pageable) {
+        Specification<Doctor> spec = Specification.where(DoctorSpecification.withName(name))
+                .and(DoctorSpecification.withSpeciality(speciality));
 
+        return doctorRepository.findAll(spec, pageable);
+    }
     public Doctor getDoctorById(Long id) {
         return doctorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Doctor not found with id: " + id));
