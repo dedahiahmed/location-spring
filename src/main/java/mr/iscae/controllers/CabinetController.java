@@ -7,6 +7,7 @@ import mr.iscae.entities.Cabinet;
 import mr.iscae.services.CabinetService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,10 +26,13 @@ public class CabinetController {
     private final CabinetService cabinetService;
 
     @GetMapping
-    public ResponseEntity<Page<CabinetDto>> getAllCabinets(Pageable pageable) {
-        Page<CabinetDto> cabinets = cabinetService.getAllCabinets(pageable)
-                .map(this::toDto);
-        return ResponseEntity.ok(cabinets);
+    public ResponseEntity<Page<Cabinet>> getAllCabinets(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String willaya,
+            @RequestParam(required = false) String moughataa,
+            @PageableDefault(size = 10, sort = "id") Pageable pageable) {
+
+        return ResponseEntity.ok(cabinetService.getAllCabinets(name, willaya, moughataa, pageable));
     }
 
     @GetMapping("/{id}")

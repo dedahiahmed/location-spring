@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import mr.iscae.dtos.CabinetDto;
 import mr.iscae.entities.Cabinet;
 import mr.iscae.repositories.CabinetRepository;
+import mr.iscae.specifications.CabinetSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,8 +21,12 @@ public class CabinetService {
 
     private final CabinetRepository cabinetRepository;
 
-    public Page<Cabinet> getAllCabinets(Pageable pageable) {
-        return cabinetRepository.findAll(pageable);
+    public Page<Cabinet> getAllCabinets(String name, String willaya, String moughataa, Pageable pageable) {
+        Specification<Cabinet> spec = Specification.where(CabinetSpecification.withName(name))
+                .and(CabinetSpecification.withWillaya(willaya))
+                .and(CabinetSpecification.withMoughataa(moughataa));
+
+        return cabinetRepository.findAll(spec, pageable);
     }
 
     public Cabinet getCabinetById(Long id) {
