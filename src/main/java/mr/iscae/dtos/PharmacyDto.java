@@ -33,4 +33,5 @@ public class PharmacyDto {
     private String img;
 
     private boolean isOpenTonight;
+    private Double distanceInKm;
 }

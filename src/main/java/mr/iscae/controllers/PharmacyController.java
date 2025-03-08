@@ -40,20 +40,31 @@ public class PharmacyController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String willaya,
             @RequestParam(required = false) String moughataa,
+            @RequestParam(required = false) Double longitude,
+            @RequestParam(required = false) Double latitude,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
 
+        // Create pageable for sorting and pagination
         Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
-        Page<Pharmacy> pharmacies = pharmacyService.getAvailablePharmacies(name, willaya, moughataa, pageable);
-        Page<PharmacyDto> pharmacyDtos = pharmacies.map(this::toDto);
-
-        return ResponseEntity.ok(pharmacyDtos);
+        // If user coordinates are provided, use proximity-based search
+        if (longitude != null && latitude != null) {
+            // For proximity-based search, we override the sortBy parameter
+            // as results will be sorted by distance regardless
+            Page<PharmacyDto> pharmacyDtos = pharmacyService.getAvailablePharmaciesByProximity(
+                    name, willaya, moughataa, longitude, latitude, pageable);
+            return ResponseEntity.ok(pharmacyDtos);
+        } else {
+            // Fall back to original method if no coordinates provided
+            Page<Pharmacy> pharmacies = pharmacyService.getAvailablePharmacies(name, willaya, moughataa, pageable);
+            Page<PharmacyDto> pharmacyDtos = pharmacies.map(this::toDto);
+            return ResponseEntity.ok(pharmacyDtos);
+        }
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<PharmacyDto> getPharmacyById(@PathVariable Long id) {
         return ResponseEntity.ok(toDto(pharmacyService.getPharmacyById(id)));
